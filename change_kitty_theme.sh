@@ -8,7 +8,7 @@ underline='\e[4m'
 clear='\e[0m'
 space=".........."
 kitty_conf_path=~/.config/kitty/kitty.conf
-kitty_themes_path=./kitty-themes/themes/
+kitty_themes_path=$(realpath ./kitty-themes/themes/)/
 
 # function for print messages with colors
 print_message() { printf "$2$1${clear}\n"; }
@@ -20,7 +20,7 @@ list_themes() {
 
 # Check if include line is in kitty.conf
 find_line_in_kitty_config() {
-  if grep "include ./kitty-themes/themes/" $kitty_conf_path >/dev/null; then
+  if grep "include $kitty_themes_path" $kitty_conf_path >/dev/null; then
     print_message "kitty.conf$space Line found" $yellow
     return 0
   else
@@ -49,7 +49,7 @@ help() {
 
 current_theme() {
   # Get the current theme in kitty.conf
-  current_theme=$(grep "include ./kitty-themes/themes/" $kitty_conf_path | cut -d / -f 4 | cut -d . -f 1)
+  current_theme=$(grep "include $kitty_themes_path" $kitty_conf_path | cut -d / -f 4 | cut -d . -f 1)
   if [[ -z $current_theme ]]; then
     print_message "You have not chosen a theme yet" $red
     exit 1
@@ -72,15 +72,15 @@ change_theme() {
     print_message "Changing the theme..." $yellow
     if find_line_in_kitty_config; then
       # get the line number where the include line is actually
-      new_line="include ./kitty-themes/themes/$theme_file"
-      line_number=$(grep -n "include ./kitty-themes/themes/" $kitty_conf_path | cut -d : -f 1)
+      new_line="include $kitty_themes_path$theme_file"
+      line_number=$(grep -n "include $kitty_themes_path" $kitty_conf_path | cut -d : -f 1)
       # Delete the line and add the new one
       sed -i "${line_number}d" $kitty_conf_path
       sed -i "${line_number}i$new_line" $kitty_conf_path
     else
       print_message "kitty.conf$space Create the line..." $yellow
       # Add the include line at the top of the file
-      sed -i "1iinclude ./kitty-themes/themes/$theme_file" $kitty_conf_path
+      sed -i "1iinclude $kitty_themes_path$theme_file" $kitty_conf_path
     fi
     print_message "kitty.conf$space File changed" $yellow
     print_message "\nTheme changed successfully => ${underline}$1${clear}" $green
@@ -95,8 +95,8 @@ change_theme() {
 }
 
 remove_theme() {
-  theme=$(grep "include ./kitty-themes/themes/" $kitty_conf_path | cut -d / -f 4 | cut -d . -f 1)
-  line_number=$(grep -n "include ./kitty-themes/themes/" $kitty_conf_path | cut -d : -f 1)
+  theme=$(grep "include $kitty_themes_path" $kitty_conf_path | cut -d / -f 4 | cut -d . -f 1)
+  line_number=$(grep -n "include $kitty_themes_path" $kitty_conf_path | cut -d : -f 1)
   if [[ -z $line_number ]]; then
     print_message "kitty.conf$space Theme not found or already removed" $red
     exit 1
