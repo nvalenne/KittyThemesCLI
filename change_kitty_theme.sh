@@ -49,11 +49,12 @@ help() {
 
 current_theme() {
   # Get the current theme in kitty.conf
-  current_theme=$(grep "include $kitty_themes_path" $kitty_conf_path | cut -d / -f 4 | cut -d . -f 1)
+  current_theme=$(grep "include $kitty_themes_path" $kitty_conf_path | awk '{print $NF}')
   if [[ -z $current_theme ]]; then
     print_message "You have not chosen a theme yet" $red
     exit 1
   else
+    current_theme=$(basename $current_theme .conf)
     print_message "Current theme: ${underline}$current_theme${clear}" $green
   fi
 }
